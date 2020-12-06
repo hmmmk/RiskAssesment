@@ -34,6 +34,9 @@ public class RegisterUserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        httpServletResponse.setContentType("application/json");
+        httpServletRequest.setCharacterEncoding("UTF-8");
+
         List<User> users = databaseManager.getAllUsers();
 
         if (users != null) {
@@ -43,8 +46,13 @@ public class RegisterUserServlet extends HttpServlet {
         }
     }
 
+
+    //TODO: add checks for existing users
     @Override
     protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        httpServletResponse.setContentType("application/json");
+        httpServletRequest.setCharacterEncoding("UTF-8");
+
         String login = httpServletRequest.getParameter("login");
         String password = httpServletRequest.getParameter("password");
         boolean isDelete = Boolean.parseBoolean(httpServletRequest.getParameter("isDelete"));
@@ -54,13 +62,11 @@ public class RegisterUserServlet extends HttpServlet {
                 databaseManager.deleteAllUsers();
             } else {
                 databaseManager.addUser(login, password);
-                User user = databaseManager.getUser(login).get(0);
+                User user = databaseManager.getUser(login, password).get(0);
                 String token = databaseManager.addAuthorization(user.id);
 
                 RegisterResponse response = new RegisterResponse(user, token);
 
-                httpServletResponse.setContentType("application/json");
-                httpServletRequest.setCharacterEncoding("UTF-8");
                 httpServletResponse.getWriter().println(gson.toJson(response));
             }
         } else {

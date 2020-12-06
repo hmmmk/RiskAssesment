@@ -57,8 +57,9 @@ public class DatabaseManager {
         return true;
     }
 
-    public List<User> getUser(String login) {
-        String query = "SELECT * FROM Users WHERE login='" + login + "';";
+    //TODO: add checks for existing users
+    public List<User> getUser(String login, String password) {
+        String query = "SELECT * FROM Users WHERE login='" + login + "' AND password='" + password + "';";
 
         ArrayList<User> resultList = new ArrayList<>();
 
