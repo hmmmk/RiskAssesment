@@ -19,8 +19,9 @@ public class DatabaseManager {
     private static final String USER = "root";
     private static final String PASSWORD = "admin";
     private static DatabaseManager instance;
-    public ScriptRunner runner;
     private Connection connection;
+
+    private ScriptRunner runner;
 
     public static DatabaseManager getInstance() {
         if (instance == null) {
@@ -49,6 +50,7 @@ public class DatabaseManager {
 
         try (Statement statement = connection.createStatement()) {
             int result = statement.executeUpdate(query);
+            connection.commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
@@ -113,6 +115,7 @@ public class DatabaseManager {
 
         try (Statement statement = connection.createStatement()) {
             int result = statement.executeUpdate(query);
+            connection.commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
@@ -121,7 +124,7 @@ public class DatabaseManager {
         return true;
     }
 
-    public String addAuthorization(int userId)  {
+    public String addAuthorization(int userId) {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -136,12 +139,30 @@ public class DatabaseManager {
 
         try (Statement statement = connection.createStatement()) {
             int result = statement.executeUpdate(query);
+            connection.commit();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return null;
         }
 
         return encoded;
+    }
+
+    public boolean deleteAuthorization(String token) {
+        String query = "DELETE FROM Authorizations WHERE token='" + token + "';";
+
+        try (Statement statement = connection.createStatement()) {
+            int result = statement.executeUpdate(query);
+            connection.commit();
+
+            if (result == 0)
+                return false;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     private InputStream getFileFromResourceAsStream(String fileName) {
