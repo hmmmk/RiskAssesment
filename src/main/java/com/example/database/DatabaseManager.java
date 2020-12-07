@@ -1,5 +1,6 @@
 package com.example.database;
 
+import com.example.database.models.Company;
 import com.example.database.models.User;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
@@ -85,6 +86,30 @@ public class DatabaseManager {
         return resultList;
     }
 
+    public User getUserByToken(String token) {
+        String query = "SELECT * FROM Users WHERE Users.id = " +
+                "(SELECT user_id FROM Authorizations WHERE token = '" + token + "');";
+
+        User user = null;
+
+        try (Statement statement = connection.createStatement()) {
+            ResultSet result = statement.executeQuery(query);
+
+            while (result.next()) {
+                user = new User(
+                        result.getInt("id"),
+                        result.getString("login"),
+                        result.getString("password"));
+
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+
+        return user;
+    }
+
     public List<User> getAllUsers() {
         String query = "SELECT * FROM Users;";
 
@@ -150,6 +175,28 @@ public class DatabaseManager {
 
     public boolean deleteAuthorization(String token) {
         String query = "DELETE FROM Authorizations WHERE token='" + token + "';";
+
+        try (Statement statement = connection.createStatement()) {
+            int result = statement.executeUpdate(query);
+            connection.commit();
+
+            if (result == 0)
+                return false;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean addCompany(Company company) {
+        String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
+                "net_profit, assets, obligations, revenue, name, user_id) " +
+                "VALUES (" + company.getOwnWorkingCapital() + ", " + company.getOwnCapital() + ", " + company.getStAssets()
+                + ", " + company.getStObligations() + ", " + company.getStNetProfit() +
+                ", " + company.getAssets() + ", " + company.getStObligations() + ", " + company.getRevenue()
+                + ", '" + company.getName() + "', " + company.getUserId() + ");";
 
         try (Statement statement = connection.createStatement()) {
             int result = statement.executeUpdate(query);
