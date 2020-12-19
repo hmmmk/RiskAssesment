@@ -10,8 +10,10 @@ public class Utils {
     private static final Gson gson = new Gson();
 
     public static void printResult(HttpServletResponse httpServletResponse, String message) throws IOException {
-        httpServletResponse.getWriter().println(gson.toJson(
-                new BaseResponse(message)
-        ));
+        httpServletResponse.getWriter().println(gson.toJson(new BaseResponse(message)));
+    }
+
+    public static void printCustomResult(HttpServletResponse httpServletResponse, Object body) throws IOException {
+        httpServletResponse.getWriter().println(gson.toJson(body));
     }
 }

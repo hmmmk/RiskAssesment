@@ -4,6 +4,7 @@ import com.example.database.models.Company;
 import com.example.database.models.User;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
+import javax.naming.spi.DirStateFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -190,13 +191,83 @@ public class DatabaseManager {
         return true;
     }
 
-    public boolean addCompany(Company company) {
+    public Company addCompany(Company company) {
+//        String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
+//                "net_profit, assets, obligations, revenue, name, user_id) " +
+//                "VALUES (" + company.getOwnWorkingCapital() + ", " + company.getOwnCapital() + ", " + company.getStAssets()
+//                + ", " + company.getStObligations() + ", " + company.getStNetProfit() +
+//                ", " + company.getAssets() + ", " + company.getStObligations() + ", " + company.getRevenue()
+//                + ", '" + company.getName() + "', " + company.getUserId() + ");";
+
         String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
                 "net_profit, assets, obligations, revenue, name, user_id) " +
-                "VALUES (" + company.getOwnWorkingCapital() + ", " + company.getOwnCapital() + ", " + company.getStAssets()
-                + ", " + company.getStObligations() + ", " + company.getStNetProfit() +
-                ", " + company.getAssets() + ", " + company.getStObligations() + ", " + company.getRevenue()
-                + ", '" + company.getName() + "', " + company.getUserId() + ");";
+                "VALUES (?,?,?,?,?,?,?,?,?,?)";
+        try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setFloat(1, company.getOwnWorkingCapital());
+            statement.setFloat(2, company.getOwnCapital());
+            statement.setFloat(3, company.getStAssets());
+            statement.setFloat(4, company.getStObligations());
+            statement.setFloat(5, company.getStNetProfit());
+            statement.setFloat(6, company.getAssets());
+            statement.setFloat(7, company.getObligation());
+            statement.setFloat(8, company.getRevenue());
+            statement.setString(9, company.getName());
+            statement.setInt(10, company.getUserId());
+
+            statement.executeUpdate();
+            connection.commit();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    company.setId(generatedKeys.getInt(1));
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+
+        return company;
+    }
+
+    public List<Company> getCompany(int id) {
+        String query = "SELECT * FROM Companies WHERE id=" + id + ";";
+
+        ArrayList<Company> resultList = new ArrayList<>();
+
+        try (Statement statement = connection.createStatement()) {
+            ResultSet result = statement.executeQuery(query);
+
+            while (result.next()) {
+                resultList.add(
+                        new Company(
+                                result.getInt("id"),
+                                result.getFloat("own_working_capital"),
+                                result.getFloat("own_capital"),
+                                result.getFloat("st_assets"),
+                                result.getFloat("st_obligations"),
+                                result.getFloat("net_profit"),
+                                result.getFloat("assets"),
+                                result.getFloat("obligations"),
+                                result.getFloat("revenue"),
+                                result.getString("name"),
+                                result.getInt("user_id")
+                        )
+                );
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+
+        return resultList;
+    }
+
+    public boolean deleteCompany(int id) {
+        String query = "DELETE FROM Companies WHERE id=" + id + ";";
 
         try (Statement statement = connection.createStatement()) {
             int result = statement.executeUpdate(query);
