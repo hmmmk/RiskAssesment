@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 public class CompanyServlet extends HttpServlet {
 
@@ -96,9 +97,16 @@ public class CompanyServlet extends HttpServlet {
 
         if (companyId == 0) {
             Utils.printResult(httpServletResponse, "\"company_id\" must be present.");
+            return;
         }
 
+        List<Company> companies = databaseManager.getCompany(companyId);
 
+        if (companies != null && !companies.isEmpty()) {
+            Utils.printCustomResult(httpServletResponse, companies.get(0));
+        } else {
+            Utils.printResult(httpServletResponse, "Such company is not found.");
+        }
     }
 
     @Override
@@ -120,6 +128,17 @@ public class CompanyServlet extends HttpServlet {
             return;
         }
 
+        int companyId = Integer.parseInt(httpServletRequest.getParameter("company_id"));
 
+        if (companyId == 0) {
+            Utils.printResult(httpServletResponse, "\"company_id\" must be present.");
+            return;
+        }
+
+        if (databaseManager.deleteCompany(companyId)) {
+            Utils.printResult(httpServletResponse, "Company has been deleted");
+        } else {
+            Utils.printResult(httpServletResponse, "Such company is not found.");
+        }
     }
 }

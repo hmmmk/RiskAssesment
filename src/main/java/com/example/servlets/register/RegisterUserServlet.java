@@ -46,7 +46,6 @@ public class RegisterUserServlet extends HttpServlet {
         }
     }
 
-
     //TODO: add checks for existing users
     @Override
     protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {

@@ -192,16 +192,10 @@ public class DatabaseManager {
     }
 
     public Company addCompany(Company company) {
-//        String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
-//                "net_profit, assets, obligations, revenue, name, user_id) " +
-//                "VALUES (" + company.getOwnWorkingCapital() + ", " + company.getOwnCapital() + ", " + company.getStAssets()
-//                + ", " + company.getStObligations() + ", " + company.getStNetProfit() +
-//                ", " + company.getAssets() + ", " + company.getStObligations() + ", " + company.getRevenue()
-//                + ", '" + company.getName() + "', " + company.getUserId() + ");";
-
         String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
                 "net_profit, assets, obligations, revenue, name, user_id) " +
                 "VALUES (?,?,?,?,?,?,?,?,?,?)";
+
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statement.setFloat(1, company.getOwnWorkingCapital());
             statement.setFloat(2, company.getOwnCapital());
