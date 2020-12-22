@@ -260,6 +260,39 @@ public class DatabaseManager {
         return resultList;
     }
 
+    public List<Company> getCompany(String token) {
+        String query = "SELECT * FROM Companies WHERE user_id=(SELECT user_id from Authorizations WHERE token='" + token + "')";
+
+        ArrayList<Company> resultList = new ArrayList<>();
+
+        try (Statement statement = connection.createStatement()) {
+            ResultSet result = statement.executeQuery(query);
+
+            while (result.next()) {
+                resultList.add(
+                        new Company(
+                                result.getInt("id"),
+                                result.getFloat("own_working_capital"),
+                                result.getFloat("own_capital"),
+                                result.getFloat("st_assets"),
+                                result.getFloat("st_obligations"),
+                                result.getFloat("net_profit"),
+                                result.getFloat("assets"),
+                                result.getFloat("obligations"),
+                                result.getFloat("revenue"),
+                                result.getString("name"),
+                                result.getInt("user_id")
+                        )
+                );
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+
+        return resultList;
+    }
+
     public boolean deleteCompany(int id) {
         String query = "DELETE FROM Companies WHERE id=" + id + ";";
 

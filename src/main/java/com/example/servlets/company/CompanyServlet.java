@@ -95,15 +95,16 @@ public class CompanyServlet extends HttpServlet {
 
         int companyId = Integer.parseInt(httpServletRequest.getParameter("company_id"));
 
+        List<Company> companies;
+
         if (companyId == 0) {
-            Utils.printResult(httpServletResponse, "\"company_id\" must be present.");
-            return;
+            companies = databaseManager.getCompany(token);
+        } else {
+            companies = databaseManager.getCompany(companyId);
         }
 
-        List<Company> companies = databaseManager.getCompany(companyId);
-
         if (companies != null && !companies.isEmpty()) {
-            Utils.printCustomResult(httpServletResponse, companies.get(0));
+            Utils.printCustomResult(httpServletResponse, companies);
         } else {
             Utils.printResult(httpServletResponse, "Such company is not found.");
         }
