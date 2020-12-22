@@ -2,6 +2,7 @@ package com.example.servlets.company;
 
 public class CreateCompanyRequest {
 
+    private int id;
     private float ownWorkingCapital;
     private float ownCapital;
     private float stAssets;
@@ -12,8 +13,9 @@ public class CreateCompanyRequest {
     private float revenue;
     private String name;
 
-    public CreateCompanyRequest(float ownWorkingCapital, float ownCapital, float stAssets, float stObligations,
+    public CreateCompanyRequest(int id, float ownWorkingCapital, float ownCapital, float stAssets, float stObligations,
                                 float stNetProfit, float assets, float obligation, float revenue, String name) {
+        this.id = id;
         this.ownWorkingCapital = ownWorkingCapital;
         this.ownCapital = ownCapital;
         this.stAssets = stAssets;
@@ -95,5 +97,14 @@ public class CreateCompanyRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

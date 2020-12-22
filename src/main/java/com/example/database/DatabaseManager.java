@@ -191,6 +191,41 @@ public class DatabaseManager {
         return true;
     }
 
+    public Company editCompany(Company company) {
+        String query = "UPDATE Companies SET " +
+                "own_working_capital = ?, " +
+                "own_capital = ?, " +
+                "st_assets = ?, " +
+                "st_obligations = ?, " +
+                "net_profit = ?, " +
+                "assets = ?, " +
+                "obligations = ?, " +
+                "revenue = ?, " +
+                "name = ? " +
+                "WHERE id = " + company.getId() + ";";
+
+        try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setFloat(1, company.getOwnWorkingCapital());
+            statement.setFloat(2, company.getOwnCapital());
+            statement.setFloat(3, company.getStAssets());
+            statement.setFloat(4, company.getStObligations());
+            statement.setFloat(5, company.getStNetProfit());
+            statement.setFloat(6, company.getAssets());
+            statement.setFloat(7, company.getObligation());
+            statement.setFloat(8, company.getRevenue());
+            statement.setString(9, company.getName());
+
+            statement.executeUpdate();
+            connection.commit();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+
+        return company;
+    }
+
     public Company addCompany(Company company) {
         String query = "INSERT INTO Companies(own_working_capital, own_capital, st_assets, st_obligations, " +
                 "net_profit, assets, obligations, revenue, name, user_id) " +

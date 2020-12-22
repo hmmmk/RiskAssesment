@@ -4,7 +4,9 @@ import com.example.database.DatabaseManager;
 import com.example.database.models.Company;
 import com.example.database.models.User;
 import com.example.servlets.Utils;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +20,7 @@ import java.util.List;
 public class CompanyServlet extends HttpServlet {
 
     private final DatabaseManager databaseManager = DatabaseManager.getInstance();
-    private final Gson gson = new Gson();
+    private Gson gson;
     private Connection connection;
 
     public CompanyServlet() {
@@ -26,6 +28,10 @@ public class CompanyServlet extends HttpServlet {
 
         try {
             connection = databaseManager.connect();
+
+            gson = new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                    .create();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -62,10 +68,20 @@ public class CompanyServlet extends HttpServlet {
             return;
         }
 
-        Company company = databaseManager.addCompany(new Company(0, requestBody.getOwnWorkingCapital(), requestBody.getOwnCapital(),
-                requestBody.getAssets(), requestBody.getStObligations(), requestBody.getStNetProfit(),
-                requestBody.getAssets(), requestBody.getObligation(), requestBody.getRevenue(), requestBody.getName(),
-                user.id));
+        Company company;
+
+        if (requestBody.getId() != 0) {
+            company = databaseManager.editCompany(new Company(requestBody.getId(), requestBody.getOwnWorkingCapital(), requestBody.getOwnCapital(),
+                    requestBody.getAssets(), requestBody.getStObligations(), requestBody.getStNetProfit(),
+                    requestBody.getAssets(), requestBody.getObligation(), requestBody.getRevenue(), requestBody.getName(),
+                    user.id));
+
+        } else {
+            company = databaseManager.addCompany(new Company(0, requestBody.getOwnWorkingCapital(), requestBody.getOwnCapital(),
+                    requestBody.getAssets(), requestBody.getStObligations(), requestBody.getStNetProfit(),
+                    requestBody.getAssets(), requestBody.getObligation(), requestBody.getRevenue(), requestBody.getName(),
+                    user.id));
+        }
 
         if (company != null) {
             Utils.printCustomResult(httpServletResponse, company);
